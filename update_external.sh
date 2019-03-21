@@ -42,7 +42,7 @@ echo "-- checkout to ${branch} ... "
 git checkout $branch
 echo "-- copy files to cocos2d-x/external .."
 
-rc=$(env rsync)
+rc=$(env rsync --version)
 
 if [ $? -eq 0 ] ; then
     rsync -rc --exclude .git * ${c2d}/external
