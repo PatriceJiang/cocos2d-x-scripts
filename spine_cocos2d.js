@@ -20,8 +20,32 @@ envirments
 let root = process.env["SPINE_ROOT"];
 */
 
-let SPINE_ROOT = path.join(__dirname, "spine-runtimes");
-let COCOS2DX_ROOT = path.join(__dirname, "cocos2d-x");
+const SPINE_DIRNAME = "spine-runtimes";
+const COCOS_DIRNAME = "cocos2d-x";
+
+let SPINE_ROOT = null;
+let COCOS2DX_ROOT = null;
+
+let search_path = [process.cwd(), __dirname, path.join(__dirname, "..")];
+
+for(let dir of search_path)
+{
+    let spine_root = path.join(dir, "spine-runtimes");
+    let cocos2dx_root =  path.join(dir, "cocos2d-x");
+    if(fs.existsSync(spine_root) && fs.existsSync(cocos2dx_root))
+    {
+        SPINE_ROOT = spine_root;
+        COCOS2DX_ROOT = cocos2dx_root;
+        break;
+    }
+}
+
+if(SPINE_ROOT === null || COCOS2DX_ROOT === null)
+{
+    echo("[fatal error] spine or cocos2dx path not found!");
+    process.exit(-1);
+}
+
 
 const VERSION_OF_COCOS2DX = "v4";
 
@@ -100,7 +124,9 @@ function cpSpineToCocos2dx() {
     }
 
     let v4files = getVersion(VERSION_OF_COCOS2DX);
-    echo("v4 files ", v4files);
+    
+    echo(VERSION_OF_COCOS2DX, " files ", v4files);
+
     for(let fn of v4files) {
         fs.copyFileSync(fn, path.join(dstDir, path.basename(fn)));
     }
@@ -125,7 +151,7 @@ function cpCocos2dxToSpine() {
     v4files.forEach(f => {
         map[path.basename(f)] = f;
     });
-
+    echo(VERSION_OF_COCOS2DX, " files ", map);
     for(let fn in map) {
         let srcFile = path.join(srcDir, fn)
         fs.copyFileSync(srcFile, map[fn]);

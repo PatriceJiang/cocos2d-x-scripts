@@ -1,15 +1,43 @@
-#!/bin/bash -x
+#!/bin/bash
 
-c2d=cocos2d-x
-c3b=cocos2d-x-3rd-party-libs-bin
+script_path=$(dirname "$0")
+
+c2d=$script_path/../cocos2d-x
+c3b=$script_path/../cocos2d-x-3rd-party-libs-bin
+
+if [ ! -d ${c2d}  ]; then
+    echo "-- cocos2d-x folder not found!"
+    exit -1
+fi
+
+if [ ! -d ${c3b}  ]; then
+    echo "-- cocos2d-x-3rd-party-libs-bin folder not found!"
+    exit -1
+fi
+
 branch=$(cat ${c2d}/external/config.json |grep "version" |awk -F":"  '{print $2}' | sed -e 's/,//' | sed -e 's/\"//g')
+
+echo "-- 3rd-party-libs version: ${branch}"
 
 # cd ${c2d}
 # git clean -fdx external
 # cd ..
 cd ${c3b}
+echo "-- update 3rd-party-libs repo ... "
 git fetch --all
+echo "-- checkout to ${branch} ... "
 git checkout $branch
-rsync -rc --exclude .git * ../${c2d}/external
+echo "-- copy files to cocos2d-x/external .."
+
+rc=$(env rsync)
+
+if [ $? -eq 0 ] ; then
+    rsync -rc --exclude .git * ${c2d}/external
+else
+    echo "-- rsync not found, use tar instead"
+    tar -c --exclude .git . | tar -x -C ${c2d}/external
+fi
+
+echo "-- done!"
 
 
