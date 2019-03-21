@@ -2,6 +2,19 @@
 
 // @ts-check
 
+/*********************************************************************
+ * 用于双向拷贝spine-runtimes和cocos2d-x/cocos/editor-support/spine中的文件
+ * *************
+ * spine和cocos2d-x中的目录结构不同
+ * spine总共有4个子目录(有重复), 对应了cocos2d-x v3/v4的同一个目录
+ * 
+ * 这个提供的操作就是根据文件名称和版本进行文件的拷贝
+ * 
+ * LIMITS:
+ * - 和spine-runtimes的目录结构耦合性较强, 能够适配的版本有限
+ * - VERSION_OF_COCOS2DX 没有作为参数解析
+ ********************************************************************/
+
 let fs = require("fs");
 let os = require("os");
 let path = require("path");
@@ -22,16 +35,19 @@ let root = process.env["SPINE_ROOT"];
 
 const SPINE_DIRNAME = "spine-runtimes";
 const COCOS_DIRNAME = "cocos2d-x";
+// 对应的 cocos2d-x 的版本
+const VERSION_OF_COCOS2DX = "v4";
 
 let SPINE_ROOT = null;
 let COCOS2DX_ROOT = null;
 
+//spine的搜索路径
+//[ bash pwd, 脚本路径, 脚本的上级目录]
 let search_path = [process.cwd(), __dirname, path.join(__dirname, "..")];
 
-for(let dir of search_path)
-{
-    let spine_root = path.join(dir, "spine-runtimes");
-    let cocos2dx_root =  path.join(dir, "cocos2d-x");
+for(let dir of search_path) {
+    let spine_root = path.join(dir, SPINE_DIRNAME);
+    let cocos2dx_root =  path.join(dir, COCOS_DIRNAME);
     if(fs.existsSync(spine_root) && fs.existsSync(cocos2dx_root))
     {
         SPINE_ROOT = spine_root;
@@ -47,8 +63,6 @@ if(SPINE_ROOT === null || COCOS2DX_ROOT === null)
 }
 
 
-const VERSION_OF_COCOS2DX = "v4";
-
 let spine = {
     cxx: "spine-cpp/spine-cpp",
     cocos2dx: "spine-cocos2dx/src/spine",
@@ -62,6 +76,10 @@ let cocos2dx = {
     cmake_prefix: "editor-support/spine"
 };
 
+/**
+ * 解析了spine-cpp的所有子目录, 提取.cpp/.h/.c的文件
+ * 构建成 [basename->fullpath] 的 字典
+ */
 function parseSpineTree() {
     function walk(fn, mp) {
         let stat = fs.statSync(fn);
@@ -79,10 +97,14 @@ function parseSpineTree() {
     }
     let mp = {};
     walk(path.join(SPINE_ROOT, spine.cxx), mp);
-    //walk(path.join(SPINE_ROOT, spine.cocos2dx), mp);
     return mp;
 }
 
+/**
+ * spine-cocos2dx/src/spine 目录下 指定版本的 源码文件
+ * @param {string} v version of cocos2d-x v3/v4
+ * @return list of source files with full path
+ */
 function getVersion(v) {
     let version;
     if(v == "3" || v == "v3" || v == "V3") {
@@ -109,7 +131,9 @@ function getVersion(v) {
 }
 
 
-
+/**
+ * Spine -> cocos2d-x
+ */
 function cpSpineToCocos2dx() {
     // remove cocos spine folder
     let dstDir = path.join(COCOS2DX_ROOT, cocos2dx.spine);
@@ -134,6 +158,9 @@ function cpSpineToCocos2dx() {
     generateCMakeForCocos2d();
 }
 
+/**
+ * cocos2dx -> Spine
+ */
 function cpCocos2dxToSpine() {
     let srcDir = path.join(COCOS2DX_ROOT, cocos2dx.spine);
     let spineFileMap = parseSpineTree();
