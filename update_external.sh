@@ -28,6 +28,12 @@ if [ ! -d ${c3b}  ]; then
     exit -1
 fi
 
+if [ ! -f ${c2d}/external/config.json ]; then 
+    echo "can not find external/config.json, quit!"
+    echo "cocos dir ${c2d}/external/config.json"
+    exit -1
+fi
+
 branch=$(cat ${c2d}/external/config.json |grep "version" |awk -F":"  '{print $2}' | sed -e 's/,//' | sed -e 's/\"//g')
 
 echo "-- 3rd-party-libs version: ${branch}"
