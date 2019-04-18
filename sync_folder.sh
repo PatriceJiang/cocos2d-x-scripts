@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash 
 
 src_folder=/mnt/e/Github/cocos2d-x/tests/lua-tests/src
 dst_folder=/mnt/e/Projects/MetalTrans/bin/lua-tests/Debug/Resources/src
