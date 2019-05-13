@@ -65,7 +65,7 @@ function use_tar() {
 
 function use_rsync() {
     log_progress("copy with rsync");
-    let cmd = `rsync -rc --exclude .git * ${external_dir}/external`;
+    let cmd = `rsync -rc --exclude .git * ${external_dir}`;
     child_progress.exec(cmd, (err, stdout, stderr)=>{
         if(err) {
             console.error(`failed to execute ${cmd}`);
