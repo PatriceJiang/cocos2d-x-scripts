@@ -140,18 +140,16 @@ Spliter.prototype.drain = function() {
     while(this.chunk && this.chunk.remain() <=0) {
         this.pop();
     }
+    let lineBuffers = [];
+    while(this.chunk && !this.chunk.hasCL()){
+        lineBuffers.push(this.pop().build());
+    }
 
     let c = this.chunk;
     if(c == null) {
         return null;
     }
-
-    let lineBuffers = [];
-    while(!this.chunk.hasCL()){
-        lineBuffers.push(this.pop().build());
-    }
     lineBuffers.push(this.chunk.seekCL());
-
     let newBuffer = Buffer.concat(lineBuffers);
     if(newBuffer.length == 0) {
         console.error("[error] should not have 0 length!");
@@ -164,7 +162,7 @@ function filter_process(pid) {
     let cp = child_process.spawn(`${cfg.adb_path}`,["logcat","-v","bref"], {stdio:["ignore", "pipe", "ignore"]});
     let spliter = new Spliter(pid);
     cp.stdout.on("data", (chunk)=>{
-        console.log(`[data] ${chunk.length}`);
+        //console.log(`[data] ${chunk.length}`);
         //console.log(chunk.toString("utf-8"));
         spliter.push(chunk);
     });
