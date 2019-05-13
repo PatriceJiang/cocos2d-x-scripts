@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 #############################################################
 #
@@ -17,6 +17,7 @@ script_path=$(dirname "$0")
 
 c2d=$script_path/../cocos2d-x
 c3b=$script_path/../cocos2d-x-3rd-party-libs-bin
+c3b_remote=origin
 
 if [ ! -d ${c2d}  ]; then
     echo "-- cocos2d-x folder not found!"
@@ -43,8 +44,9 @@ echo "-- 3rd-party-libs version: ${branch}"
 # cd ..
 cd ${c3b}
 echo "-- update 3rd-party-libs repo ... "
-git fetch --all
+git fetch ${c3b_remote}
 echo "-- checkout to ${branch} ... "
+echo ""
 git checkout $branch
 echo "-- copy files to cocos2d-x/external .."
 
