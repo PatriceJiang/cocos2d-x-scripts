@@ -39,10 +39,36 @@ proto._getFullPath = function() {
     }
 };
 
+let K = 1024;
+let M = K * K;
+let G = K * M;
+let P = K * G;
+
+proto.getSize = function() {
+
+    if(this.total_size > G) {
+        return (this.total_size / G).toFixed(2) + "G";
+    }else if(this.total_size > M) {
+        return (this.total_size / M).toFixed(2) + "M";
+    }else if(this.total_size > K) {
+        return (this.total_size / K).toFixed(2) + "K";
+    }else {
+        return this.total_size + "B";
+    }
+}
+
 proto.parse = function() {
     this.children = [];
-    let st = fs.statSync(this.getFullPath());
-    if(st.isDirectory()) {
+    let st = null;
+    try {
+        st = fs.statSync(this.getFullPath());
+        fs.accessSync(this.getFullPath(), fs.constants.R_OK);
+    } catch(e) {
+        console.error(e);
+        this.name = "[bad] "+this.name;
+        return;
+    }
+    if(st.isDirectory() && !st.isSymbolicLink()) {
         this.is_file = false;
         let fileList = fs.readdirSync(this.getFullPath());
         for(let f of fileList) {
@@ -51,7 +77,7 @@ proto.parse = function() {
             this.children.push(n);
             this.total_size +=  n.total_size;
         }
-    } else {
+    } else if(st.isFile()){
         this.is_file = true;
         this.total_size = st.size;
     }
@@ -84,14 +110,14 @@ function display(n) {
     readline.cursorTo(process.stdout, 0, 0)
     readline.clearScreenDown(process.stdout);
     console.log("------------------------------------------");
-    console.log(n.getFullPath());
+    console.log(n.getFullPath() + " " + n.getSize());
     if(n.is_file) {
         //console.log("F@ "+n.name);
     }else{
         //console.log("D@ "+n.name);
         let idx = 0;
         for(let f  of n.children) {
-            console.log(`${idx++}\t[${(f.percent*100).toFixed(2)}%] ${f.name}${f.is_file ? "" : "/"}`);
+            console.log(`${idx++}\t[${(f.percent*100).toFixed(2)}%  ${f.getSize()}] ${f.name}${f.is_file ? "" : "/"}`);
             if(idx > 12){
                 break;
             }
@@ -143,5 +169,13 @@ function analysis(dir) {
 }
 
 
-analysis("/home/jiang/Projects");
+if(process.argv.length >= 3) {
+    process.argv.shift();
+    process.argv.shift();
+}else{
+    console.error("argument `path` required!");
+    process.exit(-1);
+}
+
+analysis(process.argv[0]);
 
