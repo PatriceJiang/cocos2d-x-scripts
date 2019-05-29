@@ -17,6 +17,7 @@ function Node(name, parent) {
     this._cachePath = null;
     this.percent = 0;
     this.total_size = 0;
+    this.deleted = false;
 }
 
 let proto = Node.prototype;
@@ -104,7 +105,40 @@ proto.toJSON = function() {
     }else {
         return {dir: this.name, percent: this.percent, children: this.children.map(x => x.toJSON())};
     }
-}
+};
+
+proto.rmrf = function() {
+    
+    if(this.deleted) return;
+
+
+    console.log("[proecessing ] "+this.getFullPath());
+
+    this.deleted = true;
+    this.name = "[del]" + this.name;
+    if(!this.is_file){
+        for(let f of this.children) {
+            f.rmrf();
+        }
+        try{
+            console.log("[remove dir ] "+this.getFullPath());
+            fs.accessSync(this.getFullPath(), fs.constants.W_OK);
+            fs.rmdirSync(this.getFullPath());
+        }catch(e){
+            console.error(e);
+        }
+    }else{
+        try{
+            console.log("[remove file] "+this.getFullPath());
+            fs.accessSync(this.getFullPath(), fs.constants.W_OK);
+            fs.unlinkSync(this.getFullPath());
+        }catch(e){
+            console.error(e);
+        }
+    }
+};
+
+
 
 function display(n) {
     readline.cursorTo(process.stdout, 0, 0)
@@ -129,11 +163,19 @@ let current_node = null;
 
 function loop() {
     display(current_node);
-    rl.question("input line number or command .. :", (line) => {
+    rl.question("input line number or command : ", (line) => {
         if(line == "q" || line == "exit" || line == "quit") {
             process.exit(0);
-        }
-        else if(line == ".." || line == "<" || line == "back") { //move to parent
+        }else if(line == "del") {
+            rl.question("confirm to delete '"+current_node.getFullPath()+"' [yes/no]: ", (line)=>{
+                if(line == "yes") {
+                    current_node.rmrf();
+                    loop();
+                }else{
+                    loop();
+                }
+            });
+        } else if(line == ".." || line == "<" || line == "back") { //move to parent
             if(current_node.parent == null) {
                 console.log("no parent");
                 loop();
