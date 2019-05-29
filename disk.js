@@ -152,7 +152,7 @@ function display(n) {
         let idx = 0;
         for(let f  of n.children) {
             console.log(`${idx++}\t[${(f.percent*100).toFixed(2)}%  ${f.getSize()}] ${f.name}${f.is_file ? "" : "/"}`);
-            if(idx > 30){
+            if(idx > 20){
                 break;
             }
         }
