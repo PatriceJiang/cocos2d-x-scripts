@@ -221,5 +221,4 @@ if(process.argv.length >= 3) {
     analysis(process.cwd());
 }
 
-analysis(process.argv[0]);
 
