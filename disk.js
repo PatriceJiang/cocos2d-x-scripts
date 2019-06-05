@@ -37,7 +37,7 @@ proto._getFullPath = function() {
     if(this.parent != null) {
         return path.join(this.parent.getFullPath(), this.name);
     } else {
-        return path.join(__dirname, this.name);
+        return path.join(process.cwd(), this.name);
     }
 };
 
@@ -205,7 +205,7 @@ function loop() {
 
 function analysis(dir) {
     let n = new Node(dir, null);
-    console.log("parsing ...");
+    console.log(`parsing "${dir}"...`);
     n.parse();
     current_node = n;
     loop();
@@ -215,9 +215,10 @@ function analysis(dir) {
 if(process.argv.length >= 3) {
     process.argv.shift();
     process.argv.shift();
+    analysis(process.argv[0]);
 }else{
     console.error("argument `path` required!");
-    process.exit(-1);
+    analysis(process.cwd());
 }
 
 analysis(process.argv[0]);
