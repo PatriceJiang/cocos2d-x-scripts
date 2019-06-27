@@ -18,7 +18,7 @@ if(rows.length == 0) {
 }
 
 if(rows.length > 1) {
-    console.error(`find multiple ${gradle.properties}`);
+    console.error(`find multiple ${GRADLE_PROPERTIES}`);
     console.error(" change directory please!");
     console.error(" -> ", rows.join("\n -> "));
     process.exit(-1);
