@@ -1,0 +1,49 @@
+#!/usr/bin/env node
+
+let child_process = require("child_process");
+let fs = require("fs");
+let path = require("path");
+
+const CWD = process.cwd();
+const GRADLE_PROPERTIES = "gradle.properties";
+const TEMPLATE_FILE = "gradle.properties.txt";
+
+
+let rows = child_process.execSync(`find ${CWD} -name ${GRADLE_PROPERTIES}`).toString().split("\n").
+    map(x => x.trim()).filter(x => x.length > 0);
+
+if(rows.length == 0) {
+    console.error(`can not find ${GRADLE_PROPERTIES}`);
+    process.exit(-1);
+}
+
+if(rows.length > 1) {
+    console.error(`find multiple ${gradle.properties}`);
+    console.error(" change directory please!");
+    console.error(" -> ", rows.join("\n -> "));
+    process.exit(-1);
+}
+
+let proertyfile = rows[0];
+
+if(!fs.existsSync(proertyfile)) {
+    console.error(`${proertyfile} is not found!`);
+    console.error(rows);
+    process.abort();
+}
+
+
+let test_attribute = fs.readFileSync(proertyfile).toString().split("\n").
+    filter(x=> x.trim().startsWith("RELEASE_STORE_FILE") || x.trim().startsWith("RELEASE_STORE_PASSWORD")).length;
+
+if(test_attribute == 0) {
+    const content = fs.readFileSync(path.join(__dirname, TEMPLATE_FILE)).toString();
+    fs.appendFileSync(proertyfile,"\n"+ content);
+    console.log("inject release info, done!");
+    console.log(`here is the content of ${proertyfile}`);
+    console.log("-----------------------------------------");
+    console.log(fs.readFileSync(proertyfile).toString());
+} else {
+    console.log("release info already set?");
+    console.log(`please check file ${proertyfile}`);
+}
