@@ -6,7 +6,9 @@ let path = require("path");
 
 const CWD = process.cwd();
 const GRADLE_PROPERTIES = "gradle.properties";
-const TEMPLATE_FILE = "gradle.properties.txt";
+const DEFAULT_TEMPLATE_FILE = "gradle.properties.txt";
+
+const TEMPLATE_FILE = "local.gradle.properties.txt";
 
 
 let rows = child_process.execSync(`find ${CWD} -name ${GRADLE_PROPERTIES}`).toString().split("\n").
@@ -37,7 +39,12 @@ let test_attribute = fs.readFileSync(proertyfile).toString().split("\n").
     filter(x=> x.trim().startsWith("RELEASE_STORE_FILE") || x.trim().startsWith("RELEASE_STORE_PASSWORD")).length;
 
 if(test_attribute == 0) {
-    const content = fs.readFileSync(path.join(__dirname, TEMPLATE_FILE)).toString();
+    let template = path.join(__dirname, TEMPLATE_FILE);
+    if(!fs.existsSync(template)) {
+        console.log(`user template file ${TEMPLATE_FILE} is not found, use ${DEFAULT_TEMPLATE_FILE}`);
+        template = path.join(__dirname, DEFAULT_TEMPLATE_FILE);
+    }
+    const content = fs.readFileSync(template).toString();
     fs.appendFileSync(proertyfile,"\n"+ content);
     console.log("inject release info, done!");
     console.log(`here is the content of ${proertyfile}`);
