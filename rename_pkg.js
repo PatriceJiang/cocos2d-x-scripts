@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 
 
+process.env.NODE_PATH = `${process.env.NODE_PATH}:${__dirname}`;
+
+
 const fs = require("fs");
 const path = require("path");
 const child_process = require("child_process");
@@ -174,7 +177,7 @@ function ensures(folder) {
 
 function main() {
     info(`searching for AndroidManifest.xml ... `);
-    let manifestPath = find("AndroidManifest.xml");
+    let manifestPath = find("app/AndroidManifest.xml");
     info(`find manifest path ${manifestPath}`);
     
     parseManifest(manifestPath);
@@ -185,7 +188,7 @@ function main() {
     let gradleConfig = find(`app/build.gradle`);
     info(`gradle file path is ${gradleConfig}`);
 
-    let stringValues = find("strings.xml");
+    let stringValues = find("values/strings.xml");
     info(`strings.xml ${stringValues} `);
 
     ensures(path.dirname(entryClass));
