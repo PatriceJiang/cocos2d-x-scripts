@@ -10,6 +10,26 @@ const assert = require("assert");
 let cwd = process.cwd();
 
 let newPackageName = "org.xx.sdf";
+let newAppName = "WhatEverApp";
+
+process.argv.shift();
+process.argv.shift();
+
+if(process.argv.length < 2) {
+    console.error("arg1 pkgname");
+    console.error("arg2 appName");
+    process.exit(-1);
+}
+
+newPackageName = process.argv[0];
+newAppName = process.argv[1];
+
+if(!/(\w+)(\.\w+)+/.test(newPackageName)) {
+    console.error("pkgname format error!");
+    console.error(`input "${newPackageName}" mismatch xx.xx.xx `);
+    process.exit(-1);
+}
+
 
 let packageName = "";
 let activityName = "";
@@ -107,6 +127,51 @@ function renamePackage(folder, newPkg) {
     child_process.execSync(`rm -rf ${tmpdirname}`);
 }
 
+function updateAppName(fn) {
+    let p = new xml2js.Parser()
+    p.parseString(fs.readFileSync(fn).toString(), (err, data) => {
+        if(err) {
+            console.error("failed to parse", fn);
+            process.exit(-1);
+        }
+        // console.log(data);
+        let found = false;
+        for(let x of data["resources"]["string"]) {
+            if(x["$"]["name"] == "app_name") {
+                // console.log("found item");
+                // console.log(x);
+                x["_"] = newAppName;
+                found = true;
+                break;
+            }
+        }
+
+        if (found) {
+            let b = new xml2js.Builder();
+            let c = b.buildObject(data);
+            fs.writeFileSync(fn, c);
+        }
+    });
+}
+
+function ensures(folder) {
+    let parts = packageName.split(".");
+    parts.length = parts.length - 1;
+    let srcRoot = path.join(folder, packageName.split(".").map(x=>"..").join("/"));
+    srcRoot = path.normalize(srcRoot);
+    info(`each folder within ${parts.join("/")} should not contains more than one subfolders`);
+    let p = srcRoot;
+    while(parts.length > 0) {
+        p = path.join(p, parts.shift());
+        let list = fs.readdirSync(p);
+        if(list.length > 1) {
+            console.error(`there are more than 1 sub-directory here ${p}`);
+            console.error(list);
+            process.exit(-1);
+        }
+    }
+}
+
 function main() {
     info(`searching for AndroidManifest.xml ... `);
     let manifestPath = find("AndroidManifest.xml");
@@ -119,6 +184,13 @@ function main() {
 
     let gradleConfig = find(`app/build.gradle`);
     info(`gradle file path is ${gradleConfig}`);
+
+    let stringValues = find("strings.xml");
+    info(`strings.xml ${stringValues} `);
+
+    ensures(path.dirname(entryClass));
+
+    updateAppName(stringValues);
 
     sed(gradleConfig, packageName, newPackageName);
     sed(manifestPath, packageName, newPackageName);
