@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 //@ts-check
 
 
@@ -9,8 +11,7 @@ let cocos2dx_dir = path.join(__dirname, "../cocos2d-x");
 let cocos2dx_bin_dir = path.join(__dirname, "../cocos2d-x-3rd-party-libs-bin");
 let external_config = path.join(cocos2dx_dir, "external/config.json");
 let external_dir = path.join(cocos2dx_dir, "external");
-//let external_remote = "origin"
-let external_remote = "--all"
+let external_remote = "origin"
 
 //condition tests
 function ensure_exists(p) {
