@@ -4,3 +4,10 @@ RELEASE_STORE_FILE=/Users/cocos/key123.key
 RELEASE_STORE_PASSWORD=123456
 RELEASE_KEY_ALIAS=key0
 RELEASE_KEY_PASSWORD=123456
+
+systemProp.http.proxyHost=127.0.0.1
+systemProp.http.proxyPort=51034
+systemProp.http.noProxyHosts=localhost|192.168.*
+systemProp.https.proxyHost=127.0.0.1
+systemProp.https.proxyPort=51034
+systemProp.https.noProxyHosts=localhost|192.168.*
