@@ -2,3 +2,4 @@ node_modules/*
 package-lock*
 .vscode
 local.gradle.properties.txt
+retry
