@@ -70,7 +70,7 @@ function main() {
     ensure_exists(cocos2dx_bin_dir);
     ensure_exists(cocos2dx_dir);
     ensure_exists(external_config);
-
+    process.chdir(cocos2dx_bin_dir);
     do_copy();
 }
 
