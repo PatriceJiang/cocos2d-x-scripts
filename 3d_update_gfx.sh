@@ -1,11 +1,28 @@
-#!/bin/bash
+#!/bin/zsh
 #set -x
+
+set -e
 dir1=cocos2d-x-lite
 dir2=engine
 dir3=jsb-adapter
 
-dir1_branch=3fgfx-win32-adaptation
-common_branch=3d-gfx
+#dir1_branch=3fgfx-win32-adaptation
+#common_branch=3d-gfx
+
+
+if [ $# -lt 1 ]; then
+echo "[error] need branch as argument" 
+exit -1
+fi
+
+if [ -z "$1" ]; then
+echo "argument branch is not set"
+exit -1
+fi
+
+#dir1_branch=$1
+common_branch=$1
+
 
 if [ ! -d $dir1 ]; then
     echo "dir $dir1 not exits";
@@ -33,23 +50,16 @@ echo "[$dir3] on $branch3"
 
 if [ $branch2 != $common_branch ]; then
     echo " [$dir2] should be on ${common_branch}"
-    exit -1
+    git -C $dir2 stash push
+    git -C $dir2 checkout $common_branch
+   # exit -1
 fi
 
 if [ $branch3 != $common_branch ]; then 
     echo " [$dir3] should be on ${common_branch}"
-    exit -1
-fi
-
-if [ $dir1_branch == $branch1 ]; then
-    echo " [$dir1] need on ${common_branch}"
-    git -C $dir1 stash push
-    git -C $dir1 checkout $common_branch
-elif [ $common_branch == $branch1 ]; then 
-    echo " [$dir1] update"
-else
-    echo " [$dir1] should be on ${common_branch} or $dir1_branch"
-    exit -1
+    git -C $dir3 stash push
+    git -C $dir3 checkout $common_branch
+   # exit -1
 fi
 
 
@@ -61,9 +71,3 @@ git -C $dir3 pull
 
 set +x
 
-if [ $dir1_branch == $branch1 ]; then
-    set -x
-    git -C $dir1 checkout $branch1
-    git -C $dir1 stash pop 
-    set +x
-fi
