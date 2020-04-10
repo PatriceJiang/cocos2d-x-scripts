@@ -1,6 +1,6 @@
 
 ## Content from command inject_release
-RELEASE_STORE_FILE=/Users/cocos/key123.key
+RELEASE_STORE_FILE=/Users/pt/key123.key
 RELEASE_STORE_PASSWORD=123456
 RELEASE_KEY_ALIAS=key0
 RELEASE_KEY_PASSWORD=123456

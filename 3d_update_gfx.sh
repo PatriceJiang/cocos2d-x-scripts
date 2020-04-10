@@ -45,7 +45,6 @@ echo "[$dir1] on $branch1"
 echo "[$dir2] on $branch2"
 echo "[$dir3] on $branch3"
 
-echo " -> set branch to $common_branch"
 
 if [ $branch1 != $common_branch ]; then
     echo " => [$dir1] should be on ${common_branch}"
