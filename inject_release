@@ -94,7 +94,10 @@ if(test_attribute == 0) {
     let template = path.join(__dirname, TEMPLATE_FILE);
     if(!fs.existsSync(template)) {
         console.log(`user template file ${TEMPLATE_FILE} is not found, use ${DEFAULT_TEMPLATE_FILE}`);
-        template = path.join(__dirname, DEFAULT_TEMPLATE_FILE);
+        let new_template = path.join(__dirname, DEFAULT_TEMPLATE_FILE);
+	console.log(` create file ${new_template}`);
+	fs.copyFileSync(template, new_template);
+	template = new_template;
     }
     const content = fs.readFileSync(template).toString();
     common_out_items(proertyfile);
