@@ -7,6 +7,7 @@ let fs = require("fs");
 let path = require("path");
 let child_progress = require("child_process");
 
+// let cocos2dx_dir = path.join(__dirname, "../editor-3d/resources/3d/engine/native");
 let cocos2dx_dir = path.join(__dirname, "../cocos2d-x-lite");
 let cocos2dx_bin_dir = path.join(__dirname, "../cocos2d-x-lite-external");
 let external_config = path.join(cocos2dx_dir, "external/config.json");
@@ -15,6 +16,7 @@ let external_remote = "origin"
 
 //condition tests
 function ensure_exists(p) {
+    console.log(`check dir ${p}`);
     if(!fs.existsSync(p)) {
         console.error(`path ${p} does not exists!`);
         process.exit(-1);
@@ -56,7 +58,7 @@ function use_tar() {
     log_progress("copy with tar");
     let cmd = `tar -c --exclude .git . | tar -x -C ${external_dir}`;
     child_progress.exec(cmd, (err, stdout, stderr)=>{
-        if(err) {
+        if(err){
             console.error(`failed to execute ${cmd}`);
             console.error(stderr);
             process.exit(-1);
@@ -79,13 +81,26 @@ function use_rsync() {
 }
 
 
+function use_cp() {
+    log_progress("copy with cp commands");
+    let items = fs.readdirSync(".").filter( x => !x.startsWith("."));
+    for(let i of items) {
+        log_progress(`  cp ${i}`);
+        child_progress.execSync(`cp -r ${i} ${external_dir}/`);
+    }
+}
+
 function do_copy() {
     child_progress.exec("env rsync --version", (err, stdout, stderr)=>{
-        if(err) {
-            log_progress("can not find rsync, try tar!");
-            use_tar();
-            return;
-        }
+        
+        use_cp();
+        return;
+
+       // if(err) {
+        //    log_progress("can not find rsync, try tar!");
+        //    use_tar();
+         //   return;
+       // }
         use_rsync();
     })
 }

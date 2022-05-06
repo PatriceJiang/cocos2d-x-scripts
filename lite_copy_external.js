@@ -7,7 +7,7 @@ let fs = require("fs");
 let path = require("path");
 let child_progress = require("child_process");
 
-let cocos2dx_dir = path.join(__dirname, "../cocos2d-x-lite");
+let cocos2dx_dir = path.join(__dirname, "../editor-3d/resources/3d/engine/native");
 let cocos2dx_bin_dir = path.join(__dirname, "../cocos2d-x-lite-external");
 let external_config = path.join(cocos2dx_dir, "external/config.json");
 let external_dir = path.join(cocos2dx_dir, "external");
